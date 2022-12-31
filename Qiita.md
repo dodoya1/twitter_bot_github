@@ -33,6 +33,8 @@ Youtube Data API v3を使用して、特定のチャンネルから新しい動�
 5. **定期実行**:
 定期的に新しい動画をチェックするように、Twitter botを設定する必要がある。これには、HerokuやGCPなどを使用することができる。
 
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/255233/95da2576-9ec2-e9d2-efc6-dbef3fabb689.png)
+
 本ブログで一番重要で読んで欲しい項目は、「[5. Twitter botの作成手順](https://qiita.com/oyutaka_jp/items/d263f0beab2e554314d7#twitter-bot%E3%81%AE%E4%BD%9C%E6%88%90%E6%89%8B%E9%A0%86)」です。
 
 また、<font color="red">**早くコードを見たい人などは「[5. Twitter botの作成手順](https://qiita.com/oyutaka_jp/items/d263f0beab2e554314d7#twitter-bot%E3%81%AE%E4%BD%9C%E6%88%90%E6%89%8B%E9%A0%86)」から読むことをお勧めします**</font>。
@@ -43,9 +45,13 @@ Youtube Data API v3を使用して、特定のチャンネルから新しい動�
 # Twitter botとは
 Twitter botを使用することで、様々なタスクを自動化することができます。例えば、特定のハッシュタグを検索して、そのハッシュタグを含むツイートをリツイートするTwitter botや、特定のアカウントをフォローして、そのアカウントが投稿するツイートをリツイートするTwitter botなどがあります。
 
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/255233/7ee6ae56-9d51-dad4-3225-f64f7c3feadf.png)
+
 # Youtube Data API v3とは
 ## Youtube Data API v3とは何か
 Youtube Data API v3とは、Youtubeのデータを取得するためのAPIです。Youtube Data API v3を使用することで、Youtubeのデータを取得したり、操作したりすることができます。
+
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/255233/ae7ce4c3-3ee4-fb1e-24a6-2750754057b3.png)
 
 ## Youtube Data API v3を使用して取得できるデータ
 Youtube Data API v3を使用することで、様々なYoutubeのデータを取得することができます。例えば、特定のチャンネルの最新動画や、特定のキーワードで検索した動画、特定のチャンネルの登録者数や、特定の動画のタイトルや再生回数などを取得することができます。
@@ -56,6 +62,8 @@ Youtube Data API v3を使用するには、APIキーを取得して、APIを呼�
 # Twitter APIとは
 ## Twitter APIとは何か
 Twitter APIは、Twitterのデータを取得するためのAPIです。Twitter APIを使用することで、Twitterのデータを取得したり、操作したりすることができます。
+
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/255233/72404a65-6864-b850-4200-3a14239bf885.png)
 
 ## Twitter APIを使用して取得できるデータ
 Twitter APIを使用することで、様々なTwitterのデータを取得することができます。例えば、特定のアカウントの最新ツイートや、特定のハッシュタグで検索したツイート、特定のアカウントのフォロワー数や、特定のツイートのリツイート数などを取得することができます。
@@ -97,11 +105,13 @@ Twitter APIを呼び出すためのクライアントライブラリ(tweepy)を�
 
 コードファイルは以下のようなものがあります。1から順に紹介し、解説していきます。
 1. **外部ファイルを読み込み、関数を実行する**
-2. **現在の登録者数をテキストファイルに書き込む**
+2. **現在の登録者数をGoogleスプレッドシートに書き込む**
 3. **Youtubeの特定のチャンネルについて、最新動画のタイトルと動画のURLを取得する**
 4. **Twitter APIを使用して、Twitterに対して新規投稿や登録者数のツイートを行う**
 5. **Youtube Data APIを使用して、特定のチャンネルの登録者数を取得する**
 6. **Twitter APIとYoutube Data API v3のキーやトークン**
+
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/255233/2c7863de-f9e9-7914-5ca9-65e470a84884.png)
 
 ###  外部ファイルを読み込み、関数を実行する
 「main_tweet」という関数を定義しています。
@@ -156,32 +166,49 @@ def main_tweet():
 ```
 
 
-### 現在の登録者数をテキストファイルに書き込む
+### 現在の登録者数をGoogleスプレッドシートに書き込む
 「save_Count」という関数を定義しています。
 
-この関数には、現在の登録者数を表す「now_count」という引数があります。関数内では、まず、「subscriberCount.txt」というテキストファイルを読み込み、その内容を「pre_subscriberCount」という変数に代入しています。
+この関数には、現在の登録者数を表す「now_count」という引数があります。関数内では、まず、Youtube登録者数が書き込まれているGoogleスプレッドシートを読み込み、その内容を「pre_subscriberCount」という変数に代入しています。
 
 その後、現在の登録者数と、前回取得した登録者数を比較して、登録者数が変化している場合にのみ、別のファイルの関数を使用して、登録者数をツイートする処理を行っています。
 
-最後に、「subscriberCount.txt」というテキストファイルに、現在の登録者数を書き込んでいます。
+最後に、Googleスプレッドシートに、現在の登録者数を書き込んでいます。
 
 ```python:save_subscribeCount.py
+import gspread
+from google.oauth2.service_account import Credentials
+import os
 #別ファイルをインポート
 import twitter_auto_posts
 
 def save_Count(now_count):
-    #テキストファイルを読み込む
-    with open("subscriberCount.txt","r") as f:
-        pre_subscriberCount=f.read()
+    # お決まりの文句
+    # 2つのAPIを記述しないとリフレッシュトークンを3600秒毎に発行し続けなければならない
+    scope = ['https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive']
+    # 実行ファイルのディレクトリパスの取得
+    dir_path = os.path.abspath("<GCPでダウンロードしたJSON秘密鍵ファイル名>")
+    #ダウンロードしたjsonファイル名をクレデンシャル変数に設定。
+    credentials = Credentials.from_service_account_file(dir_path, scopes=scope)
+    #OAuth2の資格情報を使用してGoogle APIにログイン。
+    gc = gspread.authorize(credentials)
+
+    #スプレッドシートIDを変数に格納する。
+    SPREADSHEET_KEY = "<スプレッドシートID>"
+    # スプレッドシート（ブック）を開く
+    workbook = gc.open_by_key(SPREADSHEET_KEY)
+    # シートを開く
+    worksheet = workbook.worksheet('シート1')
+
+    #読み込む
+    pre_subscriberCount= worksheet.acell('A1').value
 
     #登録者数が変化していた場合
     if now_count!=pre_subscriberCount:
+        #セルA1にnow_countという文字列を書き込む
+        worksheet.update_cell(1,1,now_count)
         #登録者数をツイートする
         twitter_auto_posts.count_tweet(now_count)
-
-        #テキストファイルに書き込む
-        with open("subscriberCount.txt","w") as f:
-            f.write(str(now_count))
 ```
 
 ### Youtubeの特定のチャンネルについて、最新動画のタイトルと動画のURLを取得する
@@ -355,7 +382,11 @@ https://docs.oracle.com/cd/E39368_01/admin/configure-cronjobs.html
 https://www.server-memo.net/tips/crontab.html
 
 ## Twitter botをデプロイする
-最後に、Twitter botをデプロイします。Twitter botをデプロイする方法には、GCP(Google Cloud Platform)やHerokuなどがあります。今回は、GCP(Google Cloud Platform)上のCloud Scheduler、Cloud Functions、Cloud Pub/Subを使用しました。以下の記事が参考になるでしょう。
+最後に、Twitter botをデプロイします。Twitter botをデプロイする方法には、GCP(Google Cloud Platform)やHerokuなどがあります。今回は、GCP(Google Cloud Platform)上のCloud Scheduler、Cloud Functions、Cloud Pub/Subを使用しました。
+
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/255233/fa3c7cb4-fc96-0a75-1497-71a959b791f6.png)
+
+以下の記事が参考になるでしょう。
 
 https://amateur-engineer-blog.com/cloud-functions-periodic-execution/
 
@@ -383,6 +414,7 @@ Twitter botを作成するには、Twitter APIキーを取得して、プログ�
 * コードはすぐに出来たが、GCPの設定やAPI側の決まり事に関するエラーが発生し、それを一つ一つ解決するのに時間がかかり、疲れた。
 * 最初は15分ごとにYoutube登録者数をツイートするコードを書いていたが、Youtube登録者数が変化したときだけツイートするように変更した。この変更は良い改善だと思う。
 * GCPやjsonファイルやテキストファイルを初めて扱った。そのために色々調べて勉強することで技術力が上がり、面白かった。
+* 改めてエラーコードをじっくりと読む大切さを痛感した。
 
 # 参考文献
 ## 特に参考になったもの
@@ -418,3 +450,10 @@ https://www.javadrive.jp/python/file/index2.html
 https://www.true-fly.com/entry/2021/08/26/070000
 
 https://system.blog.uuum.jp/entry/2022/11/28/110000
+
+# 追記
+* GCP上ではテキストファイルへの書き込みは不可であったため、Googleスプレッドシート操作に変更しました。
+
+https://www.teijitaisya.com/python-gsheets/#:~:text=%E2%96%BC%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%81%A7%E3%82%B9%E3%83%97%E3%83%AC%E3%83%83%E3%83%89%E3%82%B7%E3%83%BC%E3%83%88,%E6%9B%B8%E3%81%8D%E8%BE%BC%E3%82%80%E8%A8%AD%E5%AE%9A%E3%81%AF%E7%B5%82%E3%82%8F%E3%82%8A%E3%81%A7%E3%81%99%E3%80%82
+
+https://noitalog.tokyo/python-google-sheets-api/
