@@ -107,4 +107,4 @@ python -c "import main; main.main_tweet()"
 
 # 作成ステップ
 
-[Qiitaの記事]()を見て下さい。
+Qiitaの記事である[Youtubeチャンネルの新規動画投稿と登録者数を自動通知するTwitter botを作った話](https://qiita.com/oyutaka_jp/items/d263f0beab2e554314d7)を見て下さい。
