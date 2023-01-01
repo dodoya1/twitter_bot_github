@@ -1,6 +1,7 @@
 import tweepy
 import json
 import datetime
+import pytz
 
 with open("secret-key.json") as f:
     secret = json.load(f)
@@ -35,7 +36,7 @@ def count_tweet(subscriberCount):
     count="{:,}".format(int(subscriberCount))
 
     #現在時刻
-    dt_now = datetime.datetime.now()
+    dt_now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
     dt_now_format=dt_now.strftime('%Y年%m月%d日 %H時%M分')
 
     # ツイート本文
