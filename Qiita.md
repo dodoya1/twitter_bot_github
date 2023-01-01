@@ -281,6 +281,7 @@ def url(CHANNEL_ID,youtube):
 import tweepy
 import json
 import datetime
+import pytz
 
 with open("secret-key.json") as f:
     secret = json.load(f)
@@ -315,7 +316,7 @@ def count_tweet(subscriberCount):
     count="{:,}".format(int(subscriberCount))
 
     #現在時刻
-    dt_now = datetime.datetime.now()
+    dt_now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
     dt_now_format=dt_now.strftime('%Y年%m月%d日 %H時%M分')
 
     # ツイート本文
@@ -457,3 +458,7 @@ https://system.blog.uuum.jp/entry/2022/11/28/110000
 https://www.teijitaisya.com/python-gsheets/#:~:text=%E2%96%BC%E3%83%96%E3%83%A9%E3%82%A6%E3%82%B6%E3%81%A7%E3%82%B9%E3%83%97%E3%83%AC%E3%83%83%E3%83%89%E3%82%B7%E3%83%BC%E3%83%88,%E6%9B%B8%E3%81%8D%E8%BE%BC%E3%82%80%E8%A8%AD%E5%AE%9A%E3%81%AF%E7%B5%82%E3%82%8F%E3%82%8A%E3%81%A7%E3%81%99%E3%80%82
 
 https://noitalog.tokyo/python-google-sheets-api/
+
+* ツイート内容にある時刻が日本時間になっていなかったため、修正した。
+
+https://qiita.com/keisuke0508/items/df2594770d63bf124ccd
